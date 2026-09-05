@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const API_BASE = "http://localhost:8000";
+  const API_BASE = "https://secdash.onrender.com";
   const liveDataCache = new Map();
 
   const state = {

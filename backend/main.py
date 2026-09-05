@@ -45,7 +45,11 @@ app = FastAPI(title="SecDash API", description="Live SEC EDGAR financial data fo
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8731", "http://127.0.0.1:8731"],
+    allow_origins=[
+        "http://localhost:8731",
+        "http://127.0.0.1:8731",
+        "https://secdash.netlify.app",
+    ],
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
