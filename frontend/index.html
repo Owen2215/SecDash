@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SecDash — Financial Dashboards</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><rect width=%2224%22 height=%2224%22 rx=%226%22 fill=%22%233B82F6%22/><path d=%22M6 15l4-5 3 3 5-7%22 stroke=%22%23FFFFFF%22 stroke-width=%222.2%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ===================== Landing / search screen ===================== -->
+  <main class="landing" id="landing">
+    <div class="landing-background" aria-hidden="true">
+      <canvas id="landingCanvas"></canvas>
+      <div class="landing-background-fade"></div>
+    </div>
+
+    <button class="theme-switch landing-theme-switch" id="themeToggle" type="button" role="switch" aria-checked="false" aria-label="Switch to dark mode">
+      <span class="theme-switch-track">
+        <svg class="theme-switch-icon theme-switch-icon--sun" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="theme-switch-icon theme-switch-icon--moon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        <span class="theme-switch-thumb">
+          <svg class="theme-thumb-icon theme-thumb-icon--sun" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="theme-thumb-icon theme-thumb-icon--moon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        </span>
+      </span>
+    </button>
+
+    <div class="landing-inner">
+      <div class="landing-brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#3B82F6"/><path d="M6 15l4-5 3 3 5-7" stroke="#FFFFFF" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="landing-brand-name">SecDash</span>
+      </div>
+      <h1 class="landing-title">Understand any public company in seconds</h1>
+      <p class="landing-subtitle">Enter a ticker or company name to see a plain-English financial dashboard, built from SEC filings.</p>
+
+      <form class="search-form" id="searchForm" autocomplete="off">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="search-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <label class="sr-only" for="searchInput">Company name or ticker symbol</label>
+        <input id="searchInput" type="text" placeholder="Try “AAPL” or “Apple”" aria-expanded="false" aria-controls="searchResults" role="combobox" aria-autocomplete="list" />
+        <button type="submit" class="search-submit" aria-label="View dashboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <ul class="search-results" id="searchResults" role="listbox" hidden></ul>
+      </form>
+
+      <div class="landing-suggestions" role="list" aria-label="Example companies">
+        <button class="ticker-chip" type="button" data-ticker="AAPL">AAPL</button>
+        <button class="ticker-chip" type="button" data-ticker="MSFT">MSFT</button>
+        <button class="ticker-chip" type="button" data-ticker="TSLA">TSLA</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================== Dashboard screen ===================== -->
+  <div class="dashboard" id="dashboard" hidden>
+    <header class="topbar">
+      <button class="back-btn" id="backBtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#3B82F6"/><path d="M6 15l4-5 3 3 5-7" stroke="#FFFFFF" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="topbar-brand">SecDash</span>
+      </button>
+
+      <form class="topbar-search" id="topbarSearchForm" autocomplete="off">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="search-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <label class="sr-only" for="topbarSearchInput">Company name or ticker symbol</label>
+        <input id="topbarSearchInput" type="text" placeholder="Search another company…" aria-expanded="false" aria-controls="topbarSearchResults" role="combobox" aria-autocomplete="list" />
+        <ul class="search-results" id="topbarSearchResults" role="listbox" hidden></ul>
+      </form>
+    </header>
+
+    <button class="theme-switch dashboard-theme-switch" id="dashboardThemeToggle" type="button" role="switch" aria-checked="false" aria-label="Switch to dark mode">
+        <span class="theme-switch-track">
+          <svg class="theme-switch-icon theme-switch-icon--sun" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="theme-switch-icon theme-switch-icon--moon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+          <span class="theme-switch-thumb">
+            <svg class="theme-thumb-icon theme-thumb-icon--sun" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            <svg class="theme-thumb-icon theme-thumb-icon--moon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+          </span>
+        </span>
+    </button>
+
+    <div class="dashboard-body">
+    <main class="content">
+      <!-- Company header -->
+      <section class="company-header content-full">
+        <div>
+          <h1 class="company-name" id="companyName">Apple Inc.</h1>
+          <p class="company-ticker" id="companyTicker">AAPL · Annual data · SEC EDGAR</p>
+        </div>
+        <div class="company-header-actions">
+          <a class="source-link" id="latestSourceLink" href="#" target="_blank" rel="noopener noreferrer" hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            <span>View latest source filing</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </a>
+          <div class="range-switch" role="tablist" aria-label="Time range">
+            <button class="range-btn" role="tab" aria-selected="false" data-range="4">4Y</button>
+            <button class="range-btn is-active" role="tab" aria-selected="true" data-range="8">8Y</button>
+            <button class="range-btn" role="tab" aria-selected="false" data-range="12">Max</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Company profile: what this company actually does -->
+      <section class="profile-card content-full" id="profileCard" hidden>
+        <p class="profile-industry" id="profileIndustry">—</p>
+        <dl class="profile-facts">
+          <div class="profile-fact">
+            <dt>Exchange</dt>
+            <dd id="profileExchange">—</dd>
+          </div>
+          <div class="profile-fact">
+            <dt>Incorporated in</dt>
+            <dd id="profileState">—</dd>
+          </div>
+          <div class="profile-fact">
+            <dt>Fiscal year ends</dt>
+            <dd id="profileFiscalYearEnd">—</dd>
+          </div>
+          <div class="profile-fact">
+            <dt>Filer category</dt>
+            <dd id="profileCategory">—</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Answer strip: the 3 questions a plain reader asks -->
+      <section class="answer-strip content-full" aria-label="Key takeaways">
+        <div class="answer-tile">
+          <span class="answer-label">Revenue (latest year)</span>
+          <span class="answer-value" id="statRevenue">$391.0B</span>
+          <span class="answer-delta" id="statRevenueDelta">+4.9% vs prior year</span>
+        </div>
+        <div class="answer-tile">
+          <span class="answer-label">Net income (latest year)</span>
+          <span class="answer-value" id="statIncome">$97.0B</span>
+          <span class="answer-delta" id="statIncomeDelta">+7.2% vs prior year</span>
+        </div>
+        <div class="answer-tile">
+          <span class="answer-label">Net margin</span>
+          <span class="answer-value" id="statMargin">24.8%</span>
+          <span class="answer-sub">of every $1 of revenue is profit</span>
+        </div>
+      </section>
+
+      <!-- Chart 1: Is the business growing? -->
+      <section class="panel chart-panel is-selectable" data-chart="revenue" tabindex="0" role="button" aria-pressed="false" aria-label="Select revenue chart to ask AI about it">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Is the business growing?</h2>
+            <p class="panel-subtitle">Total revenue, by year</p>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <svg id="revenueChart" role="img" aria-label="Area chart of annual revenue"></svg>
+          <div class="chart-tooltip" id="revenueTooltip" hidden></div>
+        </div>
+      </section>
+
+      <!-- Chart 2: Is it actually profitable? -->
+      <section class="panel chart-panel is-selectable" data-chart="compare" tabindex="0" role="button" aria-pressed="false" aria-label="Select revenue vs net income chart to ask AI about it">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Is it actually profitable?</h2>
+            <p class="panel-subtitle">Revenue vs. net income, by year</p>
+          </div>
+          <ul class="chart-legend" id="compareLegend"></ul>
+        </div>
+        <div class="chart-wrap">
+          <svg id="compareChart" role="img" aria-label="Grouped bar chart comparing annual revenue and net income"></svg>
+          <div class="chart-tooltip" id="compareTooltip" hidden></div>
+        </div>
+      </section>
+
+      <!-- Chart 3: How healthy is the business? -->
+      <section class="panel chart-panel is-selectable" data-chart="margin" tabindex="0" role="button" aria-pressed="false" aria-label="Select net margin chart to ask AI about it">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">How healthy is the business?</h2>
+            <p class="panel-subtitle">Net margin — the share of revenue kept as profit</p>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <svg id="marginChart" role="img" aria-label="Line chart of annual net margin percentage"></svg>
+          <div class="chart-tooltip" id="marginTooltip" hidden></div>
+        </div>
+      </section>
+
+      <!-- Chart 4: Where does the cash go? -->
+      <section class="panel chart-panel is-selectable" data-chart="cashflow" tabindex="0" role="button" aria-pressed="false" aria-label="Select cash flow allocation chart to ask AI about it">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Where does the cash go?</h2>
+            <p class="panel-subtitle">Operating cash flow allocated to reinvestment, debt, dividends &amp; buybacks</p>
+          </div>
+          <ul class="chart-legend" id="cashflowLegend"></ul>
+        </div>
+        <div class="chart-wrap">
+          <svg id="cashflowChart" role="img" aria-label="Stacked bar chart of operating cash flow allocation"></svg>
+          <div class="chart-tooltip" id="cashflowTooltip" hidden></div>
+        </div>
+      </section>
+
+      <!-- Chart 5: Working capital & balance-sheet trends -->
+      <section class="panel chart-panel is-selectable content-full" data-chart="workingcapital" tabindex="0" role="button" aria-pressed="false" aria-label="Select working capital trends to ask AI about it">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Working capital trends</h2>
+            <p class="panel-subtitle">Days Sales Outstanding, Days Inventory Outstanding &amp; Goodwill as % of assets</p>
+          </div>
+        </div>
+        <div class="working-capital-grid">
+          <div class="wc-metric">
+            <div class="wc-metric-head">
+              <span class="wc-metric-label">Days Sales Outstanding</span>
+              <span class="wc-metric-value" id="wcDsoLatest">—</span>
+            </div>
+            <div class="chart-wrap chart-wrap--mini">
+              <svg id="dsoChart" role="img" aria-label="Line chart of days sales outstanding"></svg>
+              <div class="chart-tooltip" id="dsoTooltip" hidden></div>
+            </div>
+          </div>
+          <div class="wc-metric">
+            <div class="wc-metric-head">
+              <span class="wc-metric-label">Days Inventory Outstanding</span>
+              <span class="wc-metric-value" id="wcDioLatest">—</span>
+            </div>
+            <div class="chart-wrap chart-wrap--mini">
+              <svg id="dioChart" role="img" aria-label="Line chart of days inventory outstanding"></svg>
+              <div class="chart-tooltip" id="dioTooltip" hidden></div>
+            </div>
+          </div>
+          <div class="wc-metric">
+            <div class="wc-metric-head">
+              <span class="wc-metric-label">Goodwill / Total Assets</span>
+              <span class="wc-metric-value" id="wcGoodwillLatest">—</span>
+            </div>
+            <div class="chart-wrap chart-wrap--mini">
+              <svg id="goodwillChart" role="img" aria-label="Line chart of goodwill as a percentage of total assets"></svg>
+              <div class="chart-tooltip" id="goodwillTooltip" hidden></div>
+            </div>
+          </div>
+        </div>
+        <p class="wc-note">Reference only — normal ranges vary widely by industry. Not an assessment of this company.</p>
+      </section>
+
+      <!-- Peer comparison: is this number big for this kind of business? -->
+      <section class="panel chart-panel is-selectable content-full" data-chart="peers" tabindex="0" role="button" aria-pressed="false" aria-label="Select peer comparison chart to ask AI about it">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">How does this compare to similar companies?</h2>
+            <p class="panel-subtitle" id="peersSubtitle">Same SEC industry classification, by revenue</p>
+          </div>
+        </div>
+        <p class="peers-empty" id="peersEmpty">Loading comparison…</p>
+        <div class="chart-wrap" id="peersChartWrap" hidden>
+          <svg id="peersChart" role="img" aria-label="Bar chart comparing this company's revenue to similar-sized industry peers"></svg>
+          <div class="chart-tooltip" id="peersTooltip" hidden></div>
+        </div>
+        <p class="wc-note">SEC classifies companies by a standard industry code (SIC), not curated competitor lists — results may include companies of very different sizes or business models.</p>
+      </section>
+
+      <!-- Filing feed -->
+      <section class="panel filings-panel content-full">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Recent SEC filings</h2>
+            <p class="panel-subtitle">Direct links to primary documents on EDGAR</p>
+          </div>
+        </div>
+        <ul class="filings-list" id="filingsList">
+          <li class="filings-empty">Loading filings…</li>
+        </ul>
+      </section>
+
+      <p class="data-note content-full">Figures in USD billions, rounded. Fiscal years per company filings. Every number is pulled live from SEC's XBRL company-facts API — no cached snapshots, no synthetic data. Click "View latest source filing" or any filing below to verify against the primary document on EDGAR.</p>
+    </main>
+
+    <!-- AI chat sidebar -->
+    <aside class="chat-sidebar" id="chatSidebar">
+      <div class="chat-sidebar-header">
+        <div class="chat-sidebar-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>
+          <span>Ask about <span id="chatCompanyLabel">this company</span></span>
+        </div>
+        <div class="chat-sidebar-actions">
+          <button class="icon-btn" id="chatClearBtn" type="button" aria-label="Clear conversation" title="Clear conversation">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+          </button>
+          <button class="icon-btn" id="chatCollapseBtn" type="button" aria-label="Close chat sidebar" title="Close chat sidebar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-empty" id="chatEmpty">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>
+          <p>Ask a question about the data currently shown on this dashboard — revenue, margins, cash flow, peers, anything on screen.</p>
+          <div class="chat-suggestions">
+            <button class="chat-suggestion-chip" type="button">Is this a healthy business?</button>
+            <button class="chat-suggestion-chip" type="button">How does this compare to peers?</button>
+            <button class="chat-suggestion-chip" type="button">What stands out in the cash flow?</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-scope-chip" id="chatScopeChip" hidden>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+        <span>Asking about: <strong id="chatScopeLabel"></strong></span>
+        <button type="button" id="chatScopeClear" aria-label="Clear chart selection">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form class="chat-input-form" id="chatForm" autocomplete="off">
+        <label class="sr-only" for="chatInput">Ask a question about this company</label>
+        <textarea id="chatInput" rows="1" placeholder="Ask about this company…"></textarea>
+        <button type="submit" class="chat-send-btn" id="chatSendBtn" aria-label="Send">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </form>
+      <p class="chat-disclaimer">AI-generated — may be inaccurate. Not financial advice.</p>
+    </aside>
+
+    <button class="chat-reopen-btn" id="chatReopenBtn" type="button" aria-label="Open chat sidebar" title="Open chat sidebar" hidden>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>
+    </button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/background.js"></script>
+</body>
+</html>
