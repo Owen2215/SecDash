@@ -53,6 +53,12 @@ Open [http://localhost:8731](http://localhost:8731) in your browser.
 > the frontend on a different port, update `allow_origins` in
 > `backend/main.py`.
 
+## Screenshots
+
+![Home screen](data/home-screen.png)
+
+![Company dashboard](data/user-interface.png)
+
 ## API endpoints
 
 | Endpoint | Description |
